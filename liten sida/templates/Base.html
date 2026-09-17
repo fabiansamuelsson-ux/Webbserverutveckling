@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>{% block heading %}Min webbplats{% endblock %}</title>
+</head>
+<body>
+    <header class="site-header">
+        <nav class="navigation">
+            <a class="brand" href="{{ url_for('index') }}">Lila sidan</a>
+            <div class="nav-links">
+                <a class="{% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Hem</a>
+                <a class="{% if request.endpoint == 'about' %}active{% endif %}" href="{{ url_for('about') }}">Om oss</a>
+                <a class="{% if request.endpoint == 'contact' %}active{% endif %}" href="{{ url_for('contact') }}">Kontakt</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="page-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 Lila sidan</p>
+    </footer>
+</body>
+</html>
