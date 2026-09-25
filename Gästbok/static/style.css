@@ -1,0 +1,63 @@
+body {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    margin-bottom: 5px;
+}
+
+.intro {
+    margin-bottom: 30px;
+}
+
+.panel {
+    margin-bottom: 25px;
+    padding: 20px;
+    border: 1px solid #ccc;
+}
+
+form {
+    display: grid;
+    gap: 8px;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #aaa;
+    font: inherit;
+    resize: none;
+}
+
+button {
+    width: fit-content;
+    margin-top: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+}
+
+.entry {
+    padding: 12px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.entry small {
+    display: block;
+    color: #666;
+}
+
+.entry p {
+    margin-bottom: 0;
+}
+
+.empty-note {
+    color: #666;
+}
+
+.error {
+    color: #a00;
+}
