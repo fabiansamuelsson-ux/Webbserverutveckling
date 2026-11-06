@@ -4,25 +4,21 @@
 
 {% block content %}
     <section class="hero">
-        <p class="eyebrow">DITT HÄNG FÖR DATA &amp; KOD</p>
-        <h1>Inga dumma frågor.<br><span>Bara fårskallar.</span></h1>
-        <p class="hero-copy">Prata programmering, hjälp varandra och dela det du har lärt dig.</p>
+            <h1>Fårforum</h1>
     </section>
 
     {% if session.get("user_id") %}
         <section class="compose card" aria-labelledby="compose-title">
             <div class="section-heading">
                 <div>
-                    <p class="eyebrow">GÖR DIN RÖST HÖRD</p>
                     <h2 id="compose-title">Skriv ett inlägg</h2>
                 </div>
             </div>
             <form method="post" action="{{ url_for('index') }}">
                 <label class="sr-only" for="message">Ditt inlägg</label>
                 <textarea id="message" name="message" rows="4" maxlength="2000"
-                          placeholder="Vad funderar du på? Dela en fråga eller ett tips…" required></textarea>
+                          placeholder="Skriv ett inlägg" required></textarea>
                 <div class="form-footer">
-                    <span class="hint">Var schysst mot flocken · max 2 000 tecken</span>
                     <button class="button" type="submit">Publicera</button>
                 </div>
             </form>
@@ -30,8 +26,7 @@
     {% else %}
         <section class="join-banner">
             <div>
-                <h2>Välkommen till flocken!</h2>
-                <p>Skapa ett konto eller logga in för att skriva och delta i diskussionen.</p>
+                <h2>Logga in för att skriva</h2>
             </div>
             <a class="button" href="{{ url_for('register') }}">Kom igång</a>
         </section>
@@ -40,15 +35,13 @@
     <section class="posts-section" aria-labelledby="posts-title">
         <div class="section-heading posts-heading">
             <div>
-                <p class="eyebrow">FRÅN FLOCKEN</p>
-                <h2 id="posts-title">Senaste inläggen <span class="post-count">{{ posts|length }}</span></h2>
+                <h2 id="posts-title">Inlägg</h2>
             </div>
         </div>
         {% if posts %}
             <div class="post-list">
                 {% for post in posts %}
                     <article class="post-card card">
-                        <div class="avatar" aria-hidden="true">{{ post.username[0]|upper }}</div>
                         <div class="post-content">
                             <header class="post-meta">
                                 <strong>{{ post.username }}</strong>
@@ -61,8 +54,7 @@
             </div>
         {% else %}
             <div class="empty-state card">
-                <h3>Här är det lugnt i hagen</h3>
-                <p>Bli den första att starta en diskussion!</p>
+                <p>Inga inlägg ännu.</p>
             </div>
         {% endif %}
     </section>

@@ -5,18 +5,14 @@
 {% block content %}
     <section class="auth-wrap">
         <div class="auth-card card">
-            <p class="eyebrow">GÅ MED I FLOCKEN</p>
             <h1>Skapa konto</h1>
-            <p class="auth-copy">Det tar bara en liten stund.</p>
             <form method="post" class="auth-form">
                 <label for="username">Användarnamn</label>
                 <input id="username" name="username" type="text" maxlength="30" autocomplete="username"
                        pattern="[A-Za-z0-9_]+" title="Bokstäver, siffror och understreck" required>
-                <span class="hint">Bokstäver, siffror och understreck, max 30 tecken.</span>
                 <label for="password">Lösenord</label>
                 <input id="password" name="password" type="password" minlength="8"
                        autocomplete="new-password" required>
-                <span class="hint">Minst 8 tecken.</span>
                 <button class="button button-full" type="submit">Skapa konto</button>
             </form>
             <p class="auth-switch">Har du redan ett konto? <a href="{{ url_for('login') }}">Logga in</a>.</p>

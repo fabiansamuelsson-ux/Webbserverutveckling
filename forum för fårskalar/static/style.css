@@ -64,10 +64,7 @@ body {
     font-size: 2rem;
 }
 
-.hero-copy,
-.hint,
-.post-meta time,
-.site-footer {
+.post-meta time {
     color: #666;
 }
 
@@ -123,21 +120,6 @@ textarea {
     background: #ddd;
 }
 
-.post-card {
-    display: flex;
-    gap: 14px;
-}
-
-.avatar {
-    display: grid;
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-    place-items: center;
-    border: 1px solid #999;
-    border-radius: 50%;
-}
-
 .post-meta {
     display: flex;
     flex-wrap: wrap;
@@ -172,13 +154,6 @@ textarea {
 
 .auth-switch {
     margin-top: 20px;
-}
-
-.site-footer {
-    margin: 40px 0 20px;
-    padding-top: 15px;
-    border-top: 1px solid #ccc;
-    font-size: 0.9rem;
 }
 
 .sr-only {
