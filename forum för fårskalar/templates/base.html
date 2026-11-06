@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="sv">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Fårforum{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="navigation" aria-label="Huvudmeny">
+            <a class="brand" href="{{ url_for('index') }}">Fårforum</a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Diskussion</a>
+                {% if session.get("user_id") %}
+                    <span class="signed-in">Hej, {{ session.get("username") }}!</span>
+                    <form class="logout-form" method="post" action="{{ url_for('logout') }}">
+                        <button class="nav-button" type="submit">Logga ut</button>
+                    </form>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Logga in</a>
+                    <a class="nav-cta" href="{{ url_for('register') }}">Skapa konto</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main class="page-width">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-list" aria-live="polite">
+                    {% for category, message in messages %}
+                        <p class="flash {{ category }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">Ett forum för frågor, idéer och fårskallar.</footer>
+</body>
+</html>
