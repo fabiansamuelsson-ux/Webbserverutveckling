@@ -17,7 +17,7 @@
             <form method="post" action="{{ url_for('index') }}">
                 <label class="sr-only" for="message">Ditt inlägg</label>
                 <textarea id="message" name="message" rows="4" maxlength="2000"
-                          placeholder="Skriv ett inlägg" required></textarea>
+                        placeholder="Skriv ett inlägg" required></textarea>
                 <div class="form-footer">
                     <button class="button" type="submit">Publicera</button>
                 </div>
@@ -48,6 +48,19 @@
                                 <time>{{ post.created_at }}</time>
                             </header>
                             <p class="post-message">{{ post.message }}</p>
+                            <div class="post-actions">
+                                {% if session.get("user_id") %}
+                                    <form method="post" action="{{ url_for('like_post', post_id=post.id) }}">
+                                        <button class="button" type="submit"
+                                                {% if post.liked_by_user %}disabled{% endif %}>
+                                            {% if post.liked_by_user %}Gillat{% else %}Gilla{% endif %}
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <a class="button" href="{{ url_for('login') }}">Logga in för att gilla</a>
+                                {% endif %}
+                                <span>{{ post.like_count }} gilla-markeringar</span>
+                            </div>
                         </div>
                     </article>
                 {% endfor %}

@@ -13,6 +13,18 @@ databas = {
 }
 
 
+def ensure_likes_table(cursor):
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS likes (
+            user_id INT NOT NULL,
+            post_id INT NOT NULL,
+            PRIMARY KEY (user_id, post_id)
+        )
+        """
+    )
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
@@ -36,19 +48,56 @@ def index():
 
     connection = mysql.connector.connect(**databas)
     cursor = connection.cursor(dictionary=True)
+    ensure_likes_table(cursor)
     cursor.execute(
         """
-        SELECT posts.message, posts.created_at, users.username
+        SELECT posts.id, posts.message, posts.created_at, users.username,
+               COUNT(likes.user_id) AS like_count,
+               COALESCE(MAX(likes.user_id = %s), 0) AS liked_by_user
         FROM posts
         JOIN users ON posts.user_id = users.id
+        LEFT JOIN likes ON likes.post_id = posts.id
+        GROUP BY posts.id, posts.message, posts.created_at, users.username
         ORDER BY posts.id DESC
-        """
+        """,
+        (session.get("user_id"),),
     )
     posts = cursor.fetchall()
     cursor.close()
     connection.close()
 
     return render_template("index.html", posts=posts)
+
+
+@app.route("/inlagg/<int:post_id>/gilla", methods=["POST"])
+def like_post(post_id):
+    if "user_id" not in session:
+        flash("Logga in för att gilla ett inlägg.")
+        return redirect("/logga-in")
+
+    connection = mysql.connector.connect(**databas)
+    cursor = connection.cursor()
+    ensure_likes_table(cursor)
+    cursor.execute("SELECT id FROM posts WHERE id = %s", (post_id,))
+    if cursor.fetchone() is None:
+        cursor.close()
+        connection.close()
+        flash("Inlägget finns inte.")
+        return redirect("/")
+
+    cursor.execute(
+        """
+        INSERT INTO likes (user_id, post_id) VALUES (%s, %s)
+        ON DUPLICATE KEY UPDATE post_id = post_id
+        """,
+        (session["user_id"], post_id),
+    )
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    flash("Inlägget är gillat.")
+    return redirect("/")
 
 
 @app.route("/registrera", methods=["GET", "POST"])

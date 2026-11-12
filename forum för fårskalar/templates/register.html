@@ -9,10 +9,10 @@
             <form method="post" class="auth-form">
                 <label for="username">Användarnamn</label>
                 <input id="username" name="username" type="text" maxlength="30" autocomplete="username"
-                       pattern="[A-Za-z0-9_]+" title="Bokstäver, siffror och understreck" required>
+                    pattern="[A-Za-z0-9_]+" title="Bokstäver, siffror och understreck" required>
                 <label for="password">Lösenord</label>
                 <input id="password" name="password" type="password" minlength="8"
-                       autocomplete="new-password" required>
+                    autocomplete="new-password" required>
                 <button class="button button-full" type="submit">Skapa konto</button>
             </form>
             <p class="auth-switch">Har du redan ett konto? <a href="{{ url_for('login') }}">Logga in</a>.</p>
