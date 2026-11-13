@@ -44,22 +44,39 @@
                     <article class="post-card card">
                         <div class="post-content">
                             <header class="post-meta">
-                                <strong>{{ post.username }}</strong>
+                                <strong class="post-author">
+                                    {% if post.profile_picture %}
+                                        <img class="avatar" src="{{ url_for('static', filename='uploads/profile_pictures/' ~ post.profile_picture) }}" alt="">
+                                    {% else %}
+                                        <span class="avatar avatar-fallback" aria-hidden="true">{{ post.username[0]|upper }}</span>
+                                    {% endif %}
+                                    {{ post.username }}
+                                </strong>
                                 <time>{{ post.created_at }}</time>
                             </header>
                             <p class="post-message">{{ post.message }}</p>
                             <div class="post-actions">
                                 {% if session.get("user_id") %}
-                                    <form method="post" action="{{ url_for('like_post', post_id=post.id) }}">
-                                        <button class="button" type="submit"
-                                                {% if post.liked_by_user %}disabled{% endif %}>
-                                            {% if post.liked_by_user %}Gillat{% else %}Gilla{% endif %}
-                                        </button>
-                                    </form>
+                                    <div class="reaction-buttons">
+                                        <form method="post" action="{{ url_for('like_post', post_id=post.id) }}">
+                                            <button class="button" type="submit"
+                                                    {% if post.liked_by_user %}disabled{% endif %}>
+                                                {% if post.liked_by_user %}Gillat{% else %}Gilla{% endif %}
+                                            </button>
+                                        </form>
+                                        <form method="post" action="{{ url_for('dislike_post', post_id=post.id) }}">
+                                            <button class="button" type="submit"
+                                                    {% if post.disliked_by_user %}disabled{% endif %}>
+                                                {% if post.disliked_by_user %}Ogillat{% else %}Ogilla{% endif %}
+                                            </button>
+                                        </form>
+                                    </div>
                                 {% else %}
-                                    <a class="button" href="{{ url_for('login') }}">Logga in för att gilla</a>
+                                    <div class="reaction-buttons">
+                                        <a class="button" href="{{ url_for('login') }}">Logga in för att reagera</a>
+                                    </div>
                                 {% endif %}
-                                <span>{{ post.like_count }} gilla-markeringar</span>
+                                <span>{{ post.like_count }} gillar · {{ post.dislike_count }} ogillar</span>
                             </div>
                         </div>
                     </article>

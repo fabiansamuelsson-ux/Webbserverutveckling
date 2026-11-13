@@ -19,10 +19,62 @@ def ensure_likes_table(cursor):
         CREATE TABLE IF NOT EXISTS likes (
             user_id INT NOT NULL,
             post_id INT NOT NULL,
+            reaction ENUM('like', 'dislike') NOT NULL,
             PRIMARY KEY (user_id, post_id)
         )
         """
     )
+
+    cursor.execute("SHOW COLUMNS FROM likes LIKE 'reaction'")
+    if cursor.fetchone() is None:
+        cursor.execute(
+            "ALTER TABLE likes ADD COLUMN reaction ENUM('like', 'dislike') NOT NULL DEFAULT 'like' AFTER post_id"
+        )
+        cursor.execute(
+            "UPDATE likes SET reaction = 'like' WHERE reaction IS NULL OR reaction = ''"
+        )
+
+
+def set_reaction(post_id, reaction, success_message):
+    if "user_id" not in session:
+        flash("Logga in för att reagera på inlägg.")
+        return redirect("/logga-in")
+
+    connection = mysql.connector.connect(**databas)
+    cursor = connection.cursor()
+    ensure_likes_table(cursor)
+    cursor.execute("SELECT id FROM posts WHERE id = %s", (post_id,))
+    if cursor.fetchone() is None:
+        cursor.close()
+        connection.close()
+        flash("Inlägget finns inte.")
+        return redirect("/")
+
+    cursor.execute(
+        "SELECT reaction FROM likes WHERE user_id = %s AND post_id = %s",
+        (session["user_id"], post_id),
+    )
+    existing_reaction = cursor.fetchone()
+
+    if existing_reaction and existing_reaction[0] == reaction:
+        flash("Du har redan valt den här reaktionen.")
+        cursor.close()
+        connection.close()
+        return redirect("/")
+
+    cursor.execute(
+        """
+        INSERT INTO likes (user_id, post_id, reaction) VALUES (%s, %s, %s)
+        ON DUPLICATE KEY UPDATE reaction = VALUES(reaction)
+        """,
+        (session["user_id"], post_id, reaction),
+    )
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    flash(success_message)
+    return redirect("/")
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -52,15 +104,18 @@ def index():
     cursor.execute(
         """
         SELECT posts.id, posts.message, posts.created_at, users.username,
-               COUNT(likes.user_id) AS like_count,
-               COALESCE(MAX(likes.user_id = %s), 0) AS liked_by_user
+            -- TODO: Select users.profile_picture after adding the column.
+            COALESCE(SUM(CASE WHEN likes.reaction = 'like' THEN 1 ELSE 0 END), 0) AS like_count,
+            COALESCE(SUM(CASE WHEN likes.reaction = 'dislike' THEN 1 ELSE 0 END), 0) AS dislike_count,
+            COALESCE(MAX(CASE WHEN likes.user_id = %s AND likes.reaction = 'like' THEN 1 ELSE 0 END), 0) AS liked_by_user,
+            COALESCE(MAX(CASE WHEN likes.user_id = %s AND likes.reaction = 'dislike' THEN 1 ELSE 0 END), 0) AS disliked_by_user
         FROM posts
         JOIN users ON posts.user_id = users.id
         LEFT JOIN likes ON likes.post_id = posts.id
         GROUP BY posts.id, posts.message, posts.created_at, users.username
         ORDER BY posts.id DESC
         """,
-        (session.get("user_id"),),
+        (session.get("user_id"), session.get("user_id")),
     )
     posts = cursor.fetchall()
     cursor.close()
@@ -71,33 +126,12 @@ def index():
 
 @app.route("/inlagg/<int:post_id>/gilla", methods=["POST"])
 def like_post(post_id):
-    if "user_id" not in session:
-        flash("Logga in för att gilla ett inlägg.")
-        return redirect("/logga-in")
+    return set_reaction(post_id, "like", "Inlägget är gillat.")
 
-    connection = mysql.connector.connect(**databas)
-    cursor = connection.cursor()
-    ensure_likes_table(cursor)
-    cursor.execute("SELECT id FROM posts WHERE id = %s", (post_id,))
-    if cursor.fetchone() is None:
-        cursor.close()
-        connection.close()
-        flash("Inlägget finns inte.")
-        return redirect("/")
 
-    cursor.execute(
-        """
-        INSERT INTO likes (user_id, post_id) VALUES (%s, %s)
-        ON DUPLICATE KEY UPDATE post_id = post_id
-        """,
-        (session["user_id"], post_id),
-    )
-    connection.commit()
-    cursor.close()
-    connection.close()
-
-    flash("Inlägget är gillat.")
-    return redirect("/")
+@app.route("/inlagg/<int:post_id>/ogilla", methods=["POST"])
+def dislike_post(post_id):
+    return set_reaction(post_id, "dislike", "Inlägget är ogillat.")
 
 
 @app.route("/registrera", methods=["GET", "POST"])
@@ -105,6 +139,7 @@ def register():
     if request.method == "POST":
         username = request.form["username"].strip()
         password = request.form["password"]
+        profile_picture = request.files.get("profile_picture")
 
         connection = mysql.connector.connect(**databas)
         cursor = connection.cursor()
@@ -117,6 +152,7 @@ def register():
             flash("Lösenordet måste ha minst 8 tecken.")
         else:
             password_hash = generate_password_hash(password)
+            # TODO: Validate and save profile_picture, then store its filename in the database.
             cursor.execute(
                 "INSERT INTO users (username, password_hash) VALUES (%s, %s)",
                 (username, password_hash),
@@ -154,6 +190,7 @@ def login():
         if user and check_password_hash(user["password_hash"], password):
             session["user_id"] = user["id"]
             session["username"] = user["username"]
+            # TODO: Load the saved profile-picture filename into the session.
             flash("Du är inloggad.")
             return redirect("/")
 

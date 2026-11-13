@@ -6,10 +6,13 @@
     <section class="auth-wrap">
         <div class="auth-card card">
             <h1>Skapa konto</h1>
-            <form method="post" class="auth-form">
+            <form method="post" class="auth-form" enctype="multipart/form-data">
                 <label for="username">Användarnamn</label>
                 <input id="username" name="username" type="text" maxlength="30" autocomplete="username"
                     pattern="[A-Za-z0-9_]+" title="Bokstäver, siffror och understreck" required>
+                <label for="profile_picture">Profilbild (kommer snart)</label>
+                <input id="profile_picture" name="profile_picture" type="file"
+                    accept="image/png,image/jpeg,image/gif,image/webp">
                 <label for="password">Lösenord</label>
                 <input id="password" name="password" type="password" minlength="8"
                     autocomplete="new-password" required>

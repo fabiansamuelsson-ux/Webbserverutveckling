@@ -68,6 +68,31 @@ body {
     color: #666;
 }
 
+.signed-in,
+.post-author {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.avatar {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    vertical-align: middle;
+}
+
+.avatar-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eee;
+    color: #222;
+    font-weight: bold;
+}
+
 .card,
 .join-banner {
     margin: 16px 0;
